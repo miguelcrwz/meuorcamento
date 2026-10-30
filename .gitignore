@@ -1,0 +1,13 @@
+# build output
+bin/
+obj/
+publish/
+
+# test output: screens and data files are regenerated on every run
+Tests/output/
+# screens rendered from a COPY of the real data file: never commit
+Tests/output-real/
+
+# editor
+.vs/
+*.user

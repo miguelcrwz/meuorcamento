@@ -1,0 +1,466 @@
+<Window x:Class="MeuOrcamento.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:c="clr-namespace:MeuOrcamento.Controls"
+        Title="Meu Orçamento" Icon="app.ico"
+        Width="1320" Height="880" MinWidth="1100" MinHeight="680"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource Paper}" Foreground="{DynamicResource Ink}"
+        FontFamily="{StaticResource Sans}" FontSize="{StaticResource SizeText}"
+        TextOptions.TextFormattingMode="Display" UseLayoutRounding="True">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="44" ResizeBorderThickness="6" GlassFrameThickness="0,0,0,1" CornerRadius="0" UseAeroCaptionButtons="False" />
+    </WindowChrome.WindowChrome>
+
+    <Grid x:Name="Root">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="44" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+
+        <!-- ═════════════ full-width header (it's also the title bar) ═════════════ -->
+        <Border BorderBrush="{DynamicResource Rule}" BorderThickness="0,0,0,1">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Orientation="Horizontal" Margin="22,0,44,0" VerticalAlignment="Center">
+                    <!-- "Faixa" logo: the salary in stretches, in the colors of the first categories -->
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,11,0" SnapsToDevicePixels="True">
+                        <Rectangle Width="10" Height="7" Fill="{DynamicResource Category0}" />
+                        <Rectangle Width="4" Height="7" Fill="{DynamicResource Category1}" Margin="2,0,0,0" />
+                        <Rectangle Width="6" Height="7" Fill="{DynamicResource Category2}" Margin="2,0,0,0" />
+                        <Rectangle Width="3" Height="7" Fill="{DynamicResource Category5}" Margin="2,0,0,0" />
+                    </StackPanel>
+                    <TextBlock Text="MEU ORÇAMENTO" Style="{StaticResource Wordmark}" VerticalAlignment="Center" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <RadioButton x:Name="NavSummary" Style="{StaticResource Tab}" Tag="01" Content="RESUMO" IsChecked="True" Checked="Nav_Checked" />
+                    <RadioButton x:Name="NavTransactions" Style="{StaticResource Tab}" Tag="02" Content="LANÇAMENTOS" Checked="Nav_Checked" />
+                    <RadioButton x:Name="NavHistory" Style="{StaticResource Tab}" Tag="03" Content="HISTÓRICO" Checked="Nav_Checked" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center" WindowChrome.IsHitTestVisibleInChrome="True">
+                    <Button x:Name="TodayButton" Style="{StaticResource TextButton}" Content="HOJE" Margin="0,0,16,0" VerticalAlignment="Center" Click="ThisMonth_Click" ToolTip="Voltar para o mês atual" />
+                    <Button Style="{StaticResource IconButton}" Content="&#xE76B;" Click="PreviousMonth_Click" ToolTip="Mês anterior · Ctrl+PageUp" />
+                    <TextBlock x:Name="MonthText" Style="{StaticResource LabelStrong}" Width="78" TextAlignment="Center" VerticalAlignment="Center" />
+                    <Button Style="{StaticResource IconButton}" Content="&#xE76C;" Click="NextMonth_Click" ToolTip="Próximo mês · Ctrl+PageDown" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center" Margin="22,0,10,0" WindowChrome.IsHitTestVisibleInChrome="True">
+                    <Border Width="1" Height="16" Background="{DynamicResource Rule}" Margin="0,0,10,0" />
+                    <Button Style="{StaticResource IconButton}" Content="&#xE8B7;" Click="OpenFolder_Click" x:Name="FolderButton" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="5" Orientation="Horizontal">
+                    <Button Style="{StaticResource WindowButton}" Content="&#xE921;" Click="Minimize_Click" ToolTip="Minimizar" />
+                    <Button x:Name="MaximizeButton" Style="{StaticResource WindowButton}" Content="&#xE922;" Click="Maximize_Click" ToolTip="Maximizar" />
+                    <Button Style="{StaticResource CloseWindowButton}" Content="&#xE8BB;" Click="Close_Click" ToolTip="Fechar" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ═════════════ pages ═════════════ -->
+        <Grid Grid.Row="1">
+
+            <!-- 01 · summary -->
+            <ScrollViewer x:Name="SummaryPage" VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="56,40,56,56">
+
+                    <!-- main number + fact sheet -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="56" />
+                            <ColumnDefinition Width="420" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel VerticalAlignment="Bottom">
+                            <TextBlock x:Name="HeroLabel" Style="{StaticResource Label}" />
+                            <!-- large values shrink to fit; they never grow beyond the scale size -->
+                            <Viewbox Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left" Margin="0,6,0,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock x:Name="HeroCurrency" Text="R$" Style="{StaticResource LabelBright}" Margin="0,28,12,0" VerticalAlignment="Top" />
+                                    <TextBlock x:Name="HeroValue" Style="{StaticResource Hero}" />
+                                </StackPanel>
+                            </Viewbox>
+                            <TextBlock x:Name="HeroNote" Style="{StaticResource Note}" Margin="0,2,0,0" />
+                            <StackPanel Orientation="Horizontal" Margin="0,30,0,0">
+                                <Button x:Name="NewButton" Style="{StaticResource PrimaryButton}" Content="+ NOVO LANÇAMENTO" Click="New_Click" ToolTip="Ctrl+N" />
+                                <Button x:Name="IncomeButton" Style="{StaticResource SecondaryButton}" Content="RENDA" Margin="10,0,0,0" Click="Income_Click" />
+                                <Button x:Name="AllocationButton" Style="{StaticResource SecondaryButton}" Content="DISTRIBUIÇÃO" Margin="10,0,0,0" Click="Allocation_Click" />
+                            </StackPanel>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2" VerticalAlignment="Bottom">
+                            <Border BorderBrush="{DynamicResource RuleStrong}" BorderThickness="0,1,0,0" />
+                            <!-- income -->
+                            <Border BorderBrush="{DynamicResource Rule}" BorderThickness="0,0,0,1" Padding="0,14,0,14">
+                                <StackPanel>
+                                    <DockPanel>
+                                        <TextBlock x:Name="IncomeValue" DockPanel.Dock="Right" Style="{StaticResource ValueMedium}" />
+                                        <TextBlock Text="RENDA" Style="{StaticResource LabelBright}" VerticalAlignment="Center" />
+                                    </DockPanel>
+                                    <DockPanel Margin="0,8,0,0">
+                                        <Button DockPanel.Dock="Right" Style="{StaticResource TextButton}" Content="EDITAR" Click="Income_Click" />
+                                        <TextBlock x:Name="IncomeDetail" Style="{StaticResource Label}" />
+                                    </DockPanel>
+                                </StackPanel>
+                            </Border>
+                            <!-- expenses -->
+                            <Border BorderBrush="{DynamicResource Rule}" BorderThickness="0,0,0,1" Padding="0,14,0,14">
+                                <StackPanel>
+                                    <DockPanel>
+                                        <TextBlock x:Name="ExpensesValue" DockPanel.Dock="Right" Style="{StaticResource ValueMedium}" />
+                                        <TextBlock Text="GASTOS" Style="{StaticResource LabelBright}" VerticalAlignment="Center" />
+                                    </DockPanel>
+                                    <c:ProgressLine x:Name="ExpensesBar" Margin="0,10,0,0" />
+                                    <TextBlock x:Name="ExpensesDetail" Style="{StaticResource Label}" Margin="0,8,0,0" />
+                                </StackPanel>
+                            </Border>
+                            <!-- invested -->
+                            <Border BorderBrush="{DynamicResource Rule}" BorderThickness="0,0,0,1" Padding="0,14,0,14">
+                                <StackPanel>
+                                    <DockPanel>
+                                        <TextBlock x:Name="InvestedValue" DockPanel.Dock="Right" Style="{StaticResource ValueMedium}" />
+                                        <TextBlock Text="INVESTIDO" Style="{StaticResource LabelBright}" VerticalAlignment="Center" />
+                                    </DockPanel>
+                                    <c:ProgressLine x:Name="InvestedBar" Margin="0,10,0,0" />
+                                    <TextBlock x:Name="InvestedDetail" Style="{StaticResource Label}" Margin="0,8,0,0" />
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- 1.1 allocation -->
+                    <Border BorderBrush="{DynamicResource RuleStrong}" BorderThickness="0,0,0,1" Margin="0,64,0,0" Padding="0,0,0,14">
+                        <DockPanel>
+                            <TextBlock x:Name="AllocatedText" DockPanel.Dock="Right" Style="{StaticResource LabelBright}" VerticalAlignment="Bottom" />
+                            <TextBlock Text="1.1" Style="{StaticResource SectionNumber}" />
+                            <TextBlock Text="Distribuição do salário" Style="{StaticResource SectionTitle}" VerticalAlignment="Center" />
+                            <TextBlock Text="cada trecho é uma parte; o cheio é o que já foi lançado" Style="{StaticResource SectionNote}" Margin="16,4,0,0" />
+                        </DockPanel>
+                    </Border>
+                    <c:StripChart x:Name="Strip" Margin="0,22,0,0" />
+
+                    <!-- 1.2 categories -->
+                    <Border BorderBrush="{DynamicResource RuleStrong}" BorderThickness="0,0,0,1" Margin="0,48,0,0" Padding="0,0,0,14">
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Right" Text="CLIQUE NUMA LINHA PARA LANÇAR" Style="{StaticResource Label}" VerticalAlignment="Bottom" />
+                            <TextBlock Text="1.2" Style="{StaticResource SectionNumber}" />
+                            <TextBlock Text="Categorias" Style="{StaticResource SectionTitle}" VerticalAlignment="Center" />
+                        </DockPanel>
+                    </Border>
+                    <Grid Margin="0,14,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="44" />
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="130" />
+                            <ColumnDefinition Width="140" />
+                            <ColumnDefinition Width="140" />
+                            <ColumnDefinition Width="140" />
+                            <ColumnDefinition Width="200" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Nº" Style="{StaticResource Label}" />
+                        <TextBlock Grid.Column="1" Text="CATEGORIA" Style="{StaticResource Label}" />
+                        <TextBlock Grid.Column="2" Text="TIPO" Style="{StaticResource Label}" />
+                        <TextBlock Grid.Column="3" Text="PLANEJADO" Style="{StaticResource Label}" TextAlignment="Right" />
+                        <TextBlock Grid.Column="4" Text="LANÇADO" Style="{StaticResource Label}" TextAlignment="Right" />
+                        <TextBlock Grid.Column="5" Text="RESTANTE" Style="{StaticResource Label}" TextAlignment="Right" />
+                        <TextBlock Grid.Column="6" Text="USO" Style="{StaticResource Label}" Margin="40,0,0,0" />
+                    </Grid>
+                    <Border Height="1" Background="{DynamicResource Rule}" />
+                    <ItemsControl x:Name="CategoryTable">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button Style="{StaticResource TableRow}" Click="Category_Click">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="44" />
+                                            <ColumnDefinition />
+                                            <ColumnDefinition Width="130" />
+                                            <ColumnDefinition Width="140" />
+                                            <ColumnDefinition Width="140" />
+                                            <ColumnDefinition Width="140" />
+                                            <ColumnDefinition Width="200" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding Number}" Style="{StaticResource Label}" VerticalAlignment="Center" />
+                                        <!-- DockPanel limits the width, so long names end in "…" -->
+                                        <DockPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,16,0">
+                                            <Rectangle Width="9" Height="9" Fill="{Binding Color}" VerticalAlignment="Center" Margin="0,1,12,0" SnapsToDevicePixels="True" />
+                                            <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
+                                        </DockPanel>
+                                        <TextBlock Grid.Column="2" Text="{Binding Kind}" Style="{StaticResource Label}" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="3" Text="{Binding Planned}" Style="{StaticResource Value}" VerticalAlignment="Center" Foreground="{DynamicResource Ink2}" />
+                                        <TextBlock Grid.Column="4" Text="{Binding Posted}" Style="{StaticResource Value}" VerticalAlignment="Center" />
+                                        <TextBlock x:Name="Remaining" Grid.Column="5" Text="{Binding Remaining}" Style="{StaticResource Value}" VerticalAlignment="Center" />
+                                        <Grid Grid.Column="6" Margin="40,0,0,0" VerticalAlignment="Center">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition />
+                                                <ColumnDefinition Width="52" />
+                                            </Grid.ColumnDefinitions>
+                                            <c:ProgressLine Value="{Binding Usage}" Alert="{Binding Alert}" Color="{Binding Color}" VerticalAlignment="Center" />
+                                            <TextBlock x:Name="UsageText" Grid.Column="1" Text="{Binding UsageText}" Style="{StaticResource Label}" TextAlignment="Right" VerticalAlignment="Center" />
+                                        </Grid>
+                                    </Grid>
+                                </Button>
+                                <DataTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding Alert}" Value="True">
+                                        <Setter TargetName="Remaining" Property="Foreground" Value="{DynamicResource Alert}" />
+                                        <Setter TargetName="UsageText" Property="Foreground" Value="{DynamicResource Alert}" />
+                                    </DataTrigger>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock x:Name="NoCategories" Style="{StaticResource Note}" Margin="0,18,0,0" Visibility="Collapsed"
+                               Text="Nenhuma categoria ainda. Use “Distribuição” para dividir o salário." />
+
+                    <!-- the destructive action sits at the end of the page, out of the way -->
+                    <Button x:Name="DeleteMonthButton" Style="{StaticResource DangerTextButton}" HorizontalAlignment="Right" Margin="0,40,0,0"
+                            Click="DeleteMonth_Click" ToolTip="Tira este mês dos dados; antes, guarda uma cópia do arquivo" />
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- 02 · transactions -->
+            <DockPanel x:Name="TransactionsPage" Visibility="Collapsed" Margin="56,40,56,0">
+                <StackPanel DockPanel.Dock="Top">
+                    <Border BorderBrush="{DynamicResource RuleStrong}" BorderThickness="0,0,0,1" Padding="0,0,0,14">
+                        <DockPanel>
+                            <Button DockPanel.Dock="Right" Style="{StaticResource TextButton}" Content="EXPORTAR CSV" VerticalAlignment="Bottom" Click="Export_Click" />
+                            <TextBlock Text="2.1" Style="{StaticResource SectionNumber}" />
+                            <TextBlock Text="Lançamentos" Style="{StaticResource SectionTitle}" VerticalAlignment="Center" />
+                            <TextBlock x:Name="TransactionsNote" Style="{StaticResource SectionNote}" Margin="16,4,0,0" />
+                        </DockPanel>
+                    </Border>
+                    <DockPanel Margin="0,18,0,0">
+                        <Grid DockPanel.Dock="Right" Width="260" VerticalAlignment="Top" Margin="24,0,0,0">
+                            <TextBox x:Name="Search" TextChanged="Search_TextChanged" Padding="22,5,0,5" />
+                            <TextBlock Style="{StaticResource Icon}" Text="&#xE721;" Foreground="{DynamicResource Ink3}" HorizontalAlignment="Left"  IsHitTestVisible="False" Margin="0,0,0,2" />
+                            <TextBlock x:Name="SearchHint" Text="BUSCAR" Style="{StaticResource Label}" Margin="22,0,0,0" VerticalAlignment="Center" IsHitTestVisible="False" />
+                        </Grid>
+                        <WrapPanel x:Name="Filters" />
+                    </DockPanel>
+                    <Grid Margin="0,22,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="90" />
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="240" />
+                            <ColumnDefinition Width="110" />
+                            <ColumnDefinition Width="150" />
+                            <ColumnDefinition Width="170" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="DATA" Style="{StaticResource Label}" />
+                        <TextBlock Grid.Column="1" Text="DESCRIÇÃO" Style="{StaticResource Label}" />
+                        <TextBlock Grid.Column="2" Text="CATEGORIA" Style="{StaticResource Label}" />
+                        <TextBlock Grid.Column="3" Text="REPETE" Style="{StaticResource Label}" />
+                        <TextBlock Grid.Column="4" Text="VALOR · R$" Style="{StaticResource Label}" TextAlignment="Right" />
+                    </Grid>
+                    <Border Height="1" Background="{DynamicResource Rule}" />
+                </StackPanel>
+
+                <Border DockPanel.Dock="Bottom" BorderBrush="{DynamicResource RuleStrong}" BorderThickness="0,1,0,0" Padding="0,14,0,22">
+                    <DockPanel>
+                        <TextBlock x:Name="TransactionsTotal" DockPanel.Dock="Right" Style="{StaticResource ValueMedium}" Margin="0,0,170,0" />
+                        <TextBlock x:Name="TransactionsCount" Style="{StaticResource LabelBright}" VerticalAlignment="Center" />
+                    </DockPanel>
+                </Border>
+
+                <Grid>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <ItemsControl x:Name="TransactionTable">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button x:Name="Row" Style="{StaticResource TableRow}" Click="Transaction_Click">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="90" />
+                                                <ColumnDefinition />
+                                                <ColumnDefinition Width="240" />
+                                                <ColumnDefinition Width="110" />
+                                                <ColumnDefinition Width="150" />
+                                                <ColumnDefinition Width="170" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding Date}" Style="{StaticResource LabelBright}" VerticalAlignment="Center" />
+                                            <TextBlock Grid.Column="1" Text="{Binding Description}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,16,0" />
+                                            <DockPanel Grid.Column="2" VerticalAlignment="Center" Margin="0,0,16,0">
+                                                <Rectangle Width="8" Height="8" Fill="{Binding Color}" VerticalAlignment="Center" Margin="0,1,10,0" SnapsToDevicePixels="True" />
+                                                <TextBlock Text="{Binding Category}" Foreground="{DynamicResource Ink2}" TextTrimming="CharacterEllipsis" />
+                                            </DockPanel>
+                                            <TextBlock Grid.Column="3" Text="{Binding Repeats}" Style="{StaticResource Label}" VerticalAlignment="Center" />
+                                            <TextBlock Grid.Column="4" Text="{Binding Amount}" Style="{StaticResource Value}" VerticalAlignment="Center" />
+                                            <StackPanel x:Name="Actions" Grid.Column="5" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Opacity="0">
+                                                <Button Style="{StaticResource TextButton}" Content="EDITAR" Click="Transaction_Click" IsTabStop="False" />
+                                                <Button Style="{StaticResource TextButton}" Content="EXCLUIR" Margin="18,0,4,0" Click="Delete_Click" IsTabStop="False" />
+                                            </StackPanel>
+                                        </Grid>
+                                    </Button>
+                                    <DataTemplate.Triggers>
+                                        <Trigger SourceName="Row" Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="Actions" Property="Opacity" Value="1" />
+                                        </Trigger>
+                                    </DataTemplate.Triggers>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                    <TextBlock x:Name="NoTransactions" Style="{StaticResource Note}" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,22,0,0" />
+                </Grid>
+            </DockPanel>
+
+            <!-- 03 · history -->
+            <DockPanel x:Name="HistoryPage" Visibility="Collapsed" Margin="56,40,56,0">
+                <StackPanel DockPanel.Dock="Top">
+                    <Border BorderBrush="{DynamicResource RuleStrong}" BorderThickness="0,0,0,1" Padding="0,0,0,14">
+                        <DockPanel>
+                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Bottom">
+                                <!-- each color is a category, the same colors as in the summary -->
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" SnapsToDevicePixels="True">
+                                    <Rectangle Width="7" Height="10" Fill="{DynamicResource Category0}" />
+                                    <Rectangle Width="4" Height="10" Fill="{DynamicResource Category1}" Margin="2,0,0,0" />
+                                    <Rectangle Width="5" Height="10" Fill="{DynamicResource Category2}" Margin="2,0,0,0" />
+                                </StackPanel>
+                                <TextBlock Text="CATEGORIAS" Style="{StaticResource Label}" Margin="8,0,20,0" VerticalAlignment="Center" />
+                                <c:CompositionBar Width="12" Height="10" Free="1" VerticalAlignment="Center" />
+                                <TextBlock Text="LIVRE" Style="{StaticResource Label}" Margin="6,0,0,0" VerticalAlignment="Center" />
+                            </StackPanel>
+                            <TextBlock Text="3.1" Style="{StaticResource SectionNumber}" />
+                            <TextBlock Text="Histórico" Style="{StaticResource SectionTitle}" VerticalAlignment="Center" />
+                            <TextBlock Text="como a renda de cada mês foi usada; gastos primeiro, depois investimentos" Style="{StaticResource SectionNote}" Margin="16,4,0,0" />
+                        </DockPanel>
+                    </Border>
+                    <Grid Margin="0,22,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="120" />
+                            <ColumnDefinition Width="130" />
+                            <ColumnDefinition Width="130" />
+                            <ColumnDefinition Width="130" />
+                            <ColumnDefinition Width="130" />
+                            <ColumnDefinition Width="110" />
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="96" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="MÊS" Style="{StaticResource Label}" />
+                        <TextBlock Grid.Column="1" Text="RENDA" Style="{StaticResource Label}" TextAlignment="Right" />
+                        <TextBlock Grid.Column="2" Text="GASTOS" Style="{StaticResource Label}" TextAlignment="Right" />
+                        <TextBlock Grid.Column="3" Text="INVESTIDO" Style="{StaticResource Label}" TextAlignment="Right" />
+                        <TextBlock Grid.Column="4" Text="LIVRE" Style="{StaticResource Label}" TextAlignment="Right" />
+                        <TextBlock Grid.Column="5" Text="TAXA INV." Style="{StaticResource Label}" TextAlignment="Right" />
+                        <TextBlock Grid.Column="6" Text="COMPOSIÇÃO DA RENDA" Style="{StaticResource Label}" Margin="48,0,0,0" />
+                    </Grid>
+                    <Border Height="1" Background="{DynamicResource Rule}" />
+                </StackPanel>
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <ItemsControl x:Name="HistoryTable">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button x:Name="Row" Style="{StaticResource TableRow}" Click="History_Click">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="120" />
+                                            <ColumnDefinition Width="130" />
+                                            <ColumnDefinition Width="130" />
+                                            <ColumnDefinition Width="130" />
+                                            <ColumnDefinition Width="130" />
+                                            <ColumnDefinition Width="110" />
+                                            <ColumnDefinition />
+                                            <ColumnDefinition Width="96" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <TextBlock x:Name="MonthName" Text="{Binding Name}" Style="{StaticResource LabelBright}" />
+                                            <Rectangle x:Name="CurrentMarker" Width="5" Height="5" Fill="{DynamicResource Ink}" Margin="8,0,0,0" VerticalAlignment="Center" Visibility="{Binding IsCurrent, Converter={StaticResource BoolToVisibility}}" />
+                                        </StackPanel>
+                                        <TextBlock Grid.Column="1" Text="{Binding Income}" Style="{StaticResource Value}" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="2" Text="{Binding Expenses}" Style="{StaticResource Value}" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="3" Text="{Binding Invested}" Style="{StaticResource Value}" VerticalAlignment="Center" />
+                                        <TextBlock x:Name="Free" Grid.Column="4" Text="{Binding Free}" Style="{StaticResource Value}" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="5" Text="{Binding Rate}" Style="{StaticResource Value}" Foreground="{DynamicResource Ink2}" VerticalAlignment="Center" />
+                                        <c:CompositionBar Grid.Column="6" Margin="48,0,0,0" VerticalAlignment="Center"
+                                                          Parts="{Binding Parts}" Free="{Binding Free01}" ToolTip="{Binding Breakdown}" />
+                                        <Button x:Name="Actions" Grid.Column="7" Style="{StaticResource DangerTextButton}" Content="EXCLUIR"
+                                                HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,4,0" Opacity="0" Click="DeleteHistoryMonth_Click" IsTabStop="False" />
+                                    </Grid>
+                                </Button>
+                                <DataTemplate.Triggers>
+                                    <Trigger SourceName="Row" Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Actions" Property="Opacity" Value="1" />
+                                    </Trigger>
+                                    <DataTrigger Binding="{Binding FreeNegative}" Value="True">
+                                        <Setter TargetName="Free" Property="Foreground" Value="{DynamicResource Alert}" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsCurrent}" Value="True">
+                                        <Setter TargetName="MonthName" Property="Foreground" Value="{DynamicResource Ink}" />
+                                    </DataTrigger>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </DockPanel>
+
+            <!-- month not planned yet -->
+            <Grid x:Name="EmptyPage" Visibility="Collapsed" Margin="56,40,56,56">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" MaxWidth="760">
+                    <StackPanel Orientation="Horizontal">
+                        <Rectangle Width="7" Height="7" Fill="{DynamicResource Ink}" VerticalAlignment="Center" Margin="0,0,10,0" />
+                        <TextBlock Text="MÊS NÃO PLANEJADO" Style="{StaticResource LabelBright}" />
+                    </StackPanel>
+                    <TextBlock x:Name="EmptyMonth" Style="{StaticResource Hero}" Margin="-5,4,0,0" />
+                    <TextBlock x:Name="EmptyText" Style="{StaticResource Note}" Margin="0,4,0,0" />
+                    <Border BorderBrush="{DynamicResource Rule}" BorderThickness="0,1,0,0" Margin="0,30,0,0" Width="460" HorizontalAlignment="Left">
+                        <ItemsControl x:Name="EmptyItems">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="{DynamicResource Rule}" BorderThickness="0,0,0,1" Padding="0,11">
+                                        <TextBlock Text="{Binding}" Style="{StaticResource LabelBright}" />
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Border>
+                    <Button x:Name="PlanButton" Style="{StaticResource PrimaryButton}" Margin="0,34,0,0" HorizontalAlignment="Left" Click="Plan_Click" />
+                </StackPanel>
+            </Grid>
+        </Grid>
+
+        <!-- ═════════════ side drawer (editing) ═════════════ -->
+        <Grid x:Name="Sheet" Grid.RowSpan="2" Visibility="Collapsed" WindowChrome.IsHitTestVisibleInChrome="True">
+            <Rectangle x:Name="Scrim" Fill="{DynamicResource Scrim}" MouseLeftButtonDown="Scrim_MouseDown" />
+            <Border x:Name="Drawer" HorizontalAlignment="Right" Background="{DynamicResource Surface}"
+                    BorderBrush="{DynamicResource RuleStrong}" BorderThickness="1,0,0,0" KeyboardNavigation.TabNavigation="Cycle">
+                <Border.RenderTransform>
+                    <TranslateTransform x:Name="DrawerOffset" />
+                </Border.RenderTransform>
+                <DockPanel>
+                    <Grid DockPanel.Dock="Top" Margin="40,30,20,0">
+                        <StackPanel>
+                            <TextBlock x:Name="DrawerOverline" Style="{StaticResource Label}" />
+                            <TextBlock x:Name="DrawerHeading" Style="{StaticResource DrawerTitle}" Margin="0,8,0,0" />
+                        </StackPanel>
+                        <Button Style="{StaticResource IconButton}" Content="&#xE8BB;" HorizontalAlignment="Right" VerticalAlignment="Top" Click="DrawerCancel_Click" ToolTip="Fechar · Esc" />
+                    </Grid>
+                    <Border DockPanel.Dock="Bottom" BorderBrush="{DynamicResource Rule}" BorderThickness="0,1,0,0" Padding="40,18">
+                        <DockPanel>
+                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                                <Button x:Name="DrawerCancel" Style="{StaticResource SecondaryButton}" Content="CANCELAR" Click="DrawerCancel_Click" />
+                                <Button x:Name="DrawerConfirm" Style="{StaticResource PrimaryButton}" Content="SALVAR" Margin="10,0,0,0" Click="DrawerConfirm_Click" />
+                            </StackPanel>
+                            <TextBlock x:Name="DrawerMessage" Style="{StaticResource Label}" TextWrapping="Wrap" TextTrimming="None" VerticalAlignment="Center" Margin="0,0,20,0" />
+                        </DockPanel>
+                    </Border>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <ContentControl x:Name="DrawerContent" Margin="40,30,40,32" Focusable="False" IsTabStop="False" />
+                    </ScrollViewer>
+                </DockPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

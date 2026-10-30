@@ -1,0 +1,24 @@
+<UserControl x:Class="MeuOrcamento.Editors.IncomeEditor"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:c="clr-namespace:MeuOrcamento.Controls">
+    <StackPanel>
+        <TextBlock x:Name="Welcome" Style="{StaticResource Note}" Margin="0,0,0,32" Visibility="Collapsed"
+                   Text="Comece pelo que entra. Já existe uma distribuição sugerida (gastos fixos, dia a dia, investimentos, lazer), ajustável a qualquer momento." />
+
+        <TextBlock Text="SALÁRIO LÍQUIDO · R$" Style="{StaticResource Label}" />
+        <c:NumberBox x:Name="Salary" Style="{StaticResource LargeField}" Margin="0,4,0,0" />
+        <TextBlock Text="O valor que cai na conta, já com os descontos." Style="{StaticResource Help}" Margin="0,8,0,0" />
+
+        <TextBlock Text="OUTRAS RENDAS NESTE MÊS · R$" Style="{StaticResource Label}" Margin="0,36,0,0" />
+        <c:NumberBox x:Name="Extra" Style="{StaticResource LargeField}" Margin="0,4,0,0" />
+        <TextBlock Text="Freela, 13º, bônus. Não se repete no mês seguinte." Style="{StaticResource Help}" Margin="0,8,0,0" />
+
+        <Border BorderBrush="{DynamicResource RuleStrong}" BorderThickness="0,1,0,0" Margin="0,40,0,0" Padding="0,14,0,0">
+            <DockPanel>
+                <TextBlock Text="TOTAL DO MÊS" Style="{StaticResource Label}" VerticalAlignment="Center" />
+                <TextBlock x:Name="Total" Style="{StaticResource ValueMedium}" />
+            </DockPanel>
+        </Border>
+    </StackPanel>
+</UserControl>

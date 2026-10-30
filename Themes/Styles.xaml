@@ -1,0 +1,544 @@
+<!--
+    Visual language: editorial and technical.
+    Light Bahnschrift for numbers, titles and names (categories, descriptions), JetBrains Mono for small uppercase labels,
+    Segoe UI Variable only for running text.
+    Thin rules instead of boxes; square corners; black-and-white identity. Color only on categories and on the alert (red).
+-->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- ───────────── families ───────────── -->
+    <FontFamily x:Key="Sans">Segoe UI Variable Text, Segoe UI</FontFamily>
+    <FontFamily x:Key="Display">Bahnschrift</FontFamily>
+    <FontFamily x:Key="Mono">pack://application:,,,/MeuOrcamento;component/Fonts/#JetBrains Mono NL, Cascadia Mono, Consolas</FontFamily>
+    <FontFamily x:Key="Icons">Segoe Fluent Icons, Segoe MDL2 Assets</FontFamily>
+
+    <!--
+        ───────────── type scale ─────────────
+        Three families and these sizes, nothing outside this list.
+
+        Mono · Regular       11   labels, tabs, filters, links, hints, charts, notes next to titles, field help
+        Mono · Medium        11   only boxed buttons and the wordmark
+        Sans · Regular       15   paragraphs, search, small number fields (day, installments)
+        Bahnschrift · Light  26 / 34   section title / drawer title
+        Bahnschrift · Light  17 / 24 / 34 / 112   table row (values and names) / fact sheet and totals / value being typed / hero
+                                  "names" = category name and transaction description, in tables, lists and fields
+        Icons                12 / 10   general / window buttons
+    -->
+    <sys:Double x:Key="SizeLabel">11</sys:Double>
+    <sys:Double x:Key="SizeText">15</sys:Double>
+    <sys:Double x:Key="SizeTitle">26</sys:Double>
+    <sys:Double x:Key="SizeDrawerTitle">34</sys:Double>
+    <sys:Double x:Key="SizeValue">17</sys:Double>
+    <sys:Double x:Key="SizeValueMedium">24</sys:Double>
+    <sys:Double x:Key="SizeValueLarge">34</sys:Double>
+    <sys:Double x:Key="SizeHero">112</sys:Double>
+    <sys:Double x:Key="SizeIcon">12</sys:Double>
+    <sys:Double x:Key="SizeWindowIcon">10</sys:Double>
+
+    <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+
+    <!-- mono: Ink3 (default), Ink2 (bright), Ink (strong) -->
+    <Style x:Key="Label" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource Mono}" />
+        <Setter Property="FontSize" Value="{StaticResource SizeLabel}" />
+        <Setter Property="FontWeight" Value="Normal" />
+        <Setter Property="Foreground" Value="{DynamicResource Ink3}" />
+        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+    </Style>
+
+    <Style x:Key="LabelBright" TargetType="TextBlock" BasedOn="{StaticResource Label}">
+        <Setter Property="Foreground" Value="{DynamicResource Ink2}" />
+    </Style>
+
+    <Style x:Key="LabelStrong" TargetType="TextBlock" BasedOn="{StaticResource Label}">
+        <Setter Property="Foreground" Value="{DynamicResource Ink}" />
+    </Style>
+
+    <!-- the wordmark: the only Medium mono text outside the buttons -->
+    <Style x:Key="Wordmark" TargetType="TextBlock" BasedOn="{StaticResource LabelStrong}">
+        <Setter Property="FontWeight" Value="Medium" />
+    </Style>
+
+    <!-- paragraph: running text in gray (balance note, drawers, empty month) -->
+    <Style x:Key="Note" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource Sans}" />
+        <Setter Property="FontSize" Value="{StaticResource SizeText}" />
+        <Setter Property="FontWeight" Value="Normal" />
+        <Setter Property="Foreground" Value="{DynamicResource Ink2}" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+
+    <!-- short note next to a section title -->
+    <Style x:Key="SectionNote" TargetType="TextBlock" BasedOn="{StaticResource Label}">
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <!-- help under a field: small mono, may wrap -->
+    <Style x:Key="Help" TargetType="TextBlock" BasedOn="{StaticResource Label}">
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="TextTrimming" Value="None" />
+    </Style>
+
+    <!-- titles: light Bahnschrift, the same family as the numbers -->
+    <Style x:Key="SectionTitle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource Display}" />
+        <Setter Property="FontSize" Value="{StaticResource SizeTitle}" />
+        <Setter Property="FontWeight" Value="Light" />
+        <Setter Property="Foreground" Value="{DynamicResource Ink}" />
+        <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
+    </Style>
+
+    <Style x:Key="DrawerTitle" TargetType="TextBlock" BasedOn="{StaticResource SectionTitle}">
+        <Setter Property="FontSize" Value="{StaticResource SizeDrawerTitle}" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+
+    <Style x:Key="SectionNumber" TargetType="TextBlock" BasedOn="{StaticResource Label}">
+        <Setter Property="Width" Value="44" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <!-- numbers: always Bahnschrift Light with tabular figures -->
+    <Style x:Key="Value" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource Display}" />
+        <Setter Property="FontWeight" Value="Light" />
+        <Setter Property="FontSize" Value="{StaticResource SizeValue}" />
+        <Setter Property="Foreground" Value="{DynamicResource Ink}" />
+        <Setter Property="TextAlignment" Value="Right" />
+        <Setter Property="Typography.NumeralAlignment" Value="Tabular" />
+    </Style>
+
+    <Style x:Key="ValueMedium" TargetType="TextBlock" BasedOn="{StaticResource Value}">
+        <Setter Property="FontSize" Value="{StaticResource SizeValueMedium}" />
+    </Style>
+
+    <Style x:Key="Hero" TargetType="TextBlock" BasedOn="{StaticResource Value}">
+        <Setter Property="FontSize" Value="{StaticResource SizeHero}" />
+        <Setter Property="TextAlignment" Value="Left" />
+        <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
+    </Style>
+
+    <Style x:Key="Icon" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource Icons}" />
+        <Setter Property="FontSize" Value="{StaticResource SizeIcon}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <!-- ───────────── keyboard focus: a square rectangle ───────────── -->
+    <Style x:Key="FocusRect">
+        <Setter Property="Control.Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Rectangle Margin="-3" Stroke="{DynamicResource Ink2}" StrokeThickness="1" SnapsToDevicePixels="True" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ───────────── buttons ───────────── -->
+    <!-- boxed buttons: Medium mono; links and icons go back to Regular -->
+    <Style x:Key="ButtonBase" TargetType="Button">
+        <Setter Property="FontFamily" Value="{StaticResource Mono}" />
+        <Setter Property="FontSize" Value="{StaticResource SizeLabel}" />
+        <Setter Property="FontWeight" Value="Medium" />
+        <Setter Property="Height" Value="40" />
+        <Setter Property="Padding" Value="20,0" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="FocusVisualStyle" Value="{StaticResource FocusRect}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bg" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.35" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="PrimaryButton" TargetType="Button" BasedOn="{StaticResource ButtonBase}">
+        <Setter Property="Background" Value="{DynamicResource Ink}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Ink}" />
+        <Setter Property="Foreground" Value="{DynamicResource Paper}" />
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{DynamicResource InkStrong}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource InkStrong}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="SecondaryButton" TargetType="Button" BasedOn="{StaticResource ButtonBase}">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="{DynamicResource RuleStrong}" />
+        <Setter Property="Foreground" Value="{DynamicResource Ink}" />
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="BorderBrush" Value="{DynamicResource Ink2}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource ButtonBase}">
+        <Setter Property="Background" Value="{DynamicResource Alert}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Alert}" />
+        <Setter Property="Foreground" Value="{DynamicResource OnAlert}" />
+    </Style>
+
+    <Style x:Key="TextButton" TargetType="Button" BasedOn="{StaticResource ButtonBase}">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Height" Value="Auto" />
+        <Setter Property="FontWeight" Value="Normal" />
+        <Setter Property="Foreground" Value="{DynamicResource Ink2}" />
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Foreground" Value="{DynamicResource Ink}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- destructive action link: subtle, turns red only on hover -->
+    <Style x:Key="DangerTextButton" TargetType="Button" BasedOn="{StaticResource TextButton}">
+        <Setter Property="Foreground" Value="{DynamicResource Ink3}" />
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Foreground" Value="{DynamicResource Alert}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="IconButton" TargetType="Button" BasedOn="{StaticResource ButtonBase}">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Width" Value="32" />
+        <Setter Property="Height" Value="32" />
+        <Setter Property="FontFamily" Value="{StaticResource Icons}" />
+        <Setter Property="FontWeight" Value="Normal" />
+        <Setter Property="FontSize" Value="{StaticResource SizeIcon}" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="Foreground" Value="{DynamicResource Ink2}" />
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Foreground" Value="{DynamicResource Ink}" />
+                <Setter Property="Background" Value="{DynamicResource Highlight}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="WindowButton" TargetType="Button" BasedOn="{StaticResource IconButton}">
+        <Setter Property="Width" Value="46" />
+        <Setter Property="Height" Value="44" />
+        <Setter Property="FontSize" Value="{StaticResource SizeWindowIcon}" />
+        <Setter Property="IsTabStop" Value="False" />
+        <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True" />
+    </Style>
+
+    <Style x:Key="CloseWindowButton" TargetType="Button" BasedOn="{StaticResource WindowButton}">
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{DynamicResource CloseHover}" />
+                <Setter Property="Foreground" Value="White" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- clickable table row: just a rule underneath, a subtle highlight on hover.
+         Names without their own style inherit the values' voice (Bahnschrift Light 17). -->
+    <Style x:Key="TableRow" TargetType="Button">
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Foreground" Value="{DynamicResource Ink}" />
+        <Setter Property="FontFamily" Value="{StaticResource Display}" />
+        <Setter Property="FontSize" Value="{StaticResource SizeValue}" />
+        <Setter Property="FontWeight" Value="Light" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="FocusVisualStyle" Value="{StaticResource FocusRect}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bg" Background="Transparent" BorderBrush="{DynamicResource Rule}" BorderThickness="0,0,0,1"
+                            MinHeight="48" Padding="0,10">
+                        <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource Highlight}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ───────────── selection: tabs, filters, lists, kind ───────────── -->
+    <Style x:Key="Tab" TargetType="RadioButton">
+        <Setter Property="Foreground" Value="{DynamicResource Ink3}" />
+        <Setter Property="FontFamily" Value="{StaticResource Mono}" />
+        <Setter Property="FontSize" Value="{StaticResource SizeLabel}" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Margin" Value="0,0,26,0" />
+        <Setter Property="FocusVisualStyle" Value="{StaticResource FocusRect}" />
+        <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Grid Background="Transparent">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock x:Name="TabNumber" Text="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}"
+                                       Style="{StaticResource Label}" Margin="0,0,8,0" />
+                            <ContentPresenter />
+                        </StackPanel>
+                        <Border x:Name="Underline" Height="1" VerticalAlignment="Bottom" Background="{DynamicResource Ink}" Visibility="Hidden" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Foreground" Value="{DynamicResource Ink2}" />
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter Property="Foreground" Value="{DynamicResource Ink}" />
+                            <Setter TargetName="TabNumber" Property="Foreground" Value="{DynamicResource Ink2}" />
+                            <Setter TargetName="Underline" Property="Visibility" Value="Visible" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="Filter" TargetType="RadioButton">
+        <Setter Property="Foreground" Value="{DynamicResource Ink3}" />
+        <Setter Property="FontFamily" Value="{StaticResource Mono}" />
+        <Setter Property="FontSize" Value="{StaticResource SizeLabel}" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Margin" Value="0,0,20,8" />
+        <Setter Property="FocusVisualStyle" Value="{StaticResource FocusRect}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Grid Background="Transparent">
+                        <ContentPresenter Margin="0,4,0,6" />
+                        <Border x:Name="Underline" Height="1" VerticalAlignment="Bottom" Background="{DynamicResource Ink}" Visibility="Hidden" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Foreground" Value="{DynamicResource Ink2}" />
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter Property="Foreground" Value="{DynamicResource Ink}" />
+                            <Setter TargetName="Underline" Property="Visibility" Value="Visible" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- choice row with a square marker (categories in the transaction drawer) -->
+    <Style x:Key="ListOption" TargetType="RadioButton">
+        <Setter Property="Foreground" Value="{DynamicResource Ink2}" />
+        <Setter Property="FontFamily" Value="{StaticResource Display}" />
+        <Setter Property="FontSize" Value="{StaticResource SizeValue}" />
+        <Setter Property="FontWeight" Value="Light" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="FocusVisualStyle" Value="{StaticResource FocusRect}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Border x:Name="Bg" Background="Transparent" BorderBrush="{DynamicResource Rule}" BorderThickness="0,0,0,1" Padding="0,11">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="28" />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <Border x:Name="Box" Width="12" Height="12" HorizontalAlignment="Left" VerticalAlignment="Center"
+                                    BorderBrush="{DynamicResource RuleStrong}" BorderThickness="1" SnapsToDevicePixels="True">
+                                <Border x:Name="Dot" Margin="2" Background="{DynamicResource Ink}" Visibility="Hidden" />
+                            </Border>
+                            <ContentPresenter Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" />
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Foreground" Value="{DynamicResource Ink}" />
+                            <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource Ink2}" />
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter Property="Foreground" Value="{DynamicResource Ink}" />
+                            <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource Ink}" />
+                            <Setter TargetName="Dot" Property="Visibility" Value="Visible" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- option buttons side by side (GASTO | INVESTIMENTO, NÃO | TODO MÊS | PARCELADO) -->
+    <Style x:Key="Segment" TargetType="RadioButton">
+        <Setter Property="Foreground" Value="{DynamicResource Ink3}" />
+        <Setter Property="FontFamily" Value="{StaticResource Mono}" />
+        <Setter Property="FontSize" Value="{StaticResource SizeLabel}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FocusVisualStyle" Value="{StaticResource FocusRect}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Border x:Name="Bg" Background="{TemplateBinding Background}" BorderBrush="{DynamicResource RuleStrong}"
+                            BorderThickness="1" Height="30" Padding="10,0" SnapsToDevicePixels="True">
+                        <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Foreground" Value="{DynamicResource Ink}" />
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource Ink}" />
+                            <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource Ink}" />
+                            <Setter Property="Foreground" Value="{DynamicResource Paper}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ───────────── fields: just a rule underneath ───────────── -->
+    <Style TargetType="TextBox">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{DynamicResource Ink}" />
+        <Setter Property="CaretBrush" Value="{DynamicResource Ink}" />
+        <Setter Property="SelectionBrush" Value="{DynamicResource Ink3}" />
+        <Setter Property="SelectionOpacity" Value="0.45" />
+        <Setter Property="BorderBrush" Value="{DynamicResource RuleStrong}" />
+        <Setter Property="FontFamily" Value="{StaticResource Sans}" />
+        <Setter Property="FontSize" Value="{StaticResource SizeText}" />
+        <Setter Property="FontWeight" Value="Normal" />
+        <Setter Property="Padding" Value="0,7" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Border x:Name="Underline" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="0,0,0,1" SnapsToDevicePixels="True">
+                        <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" Focusable="False"
+                                      HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Underline" Property="BorderBrush" Value="{DynamicResource Ink3}" />
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Underline" Property="BorderBrush" Value="{DynamicResource Ink}" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.4" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- large value in the drawers -->
+    <Style x:Key="LargeField" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+        <Setter Property="FontFamily" Value="{StaticResource Display}" />
+        <Setter Property="FontWeight" Value="Light" />
+        <Setter Property="FontSize" Value="{StaticResource SizeValueLarge}" />
+        <Setter Property="Padding" Value="0,2,0,6" />
+    </Style>
+
+    <!-- numeric field in a table: same size and weight as the table values -->
+    <Style x:Key="TableField" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+        <Setter Property="FontFamily" Value="{StaticResource Display}" />
+        <Setter Property="FontWeight" Value="Light" />
+        <Setter Property="FontSize" Value="{StaticResource SizeValue}" />
+        <Setter Property="TextAlignment" Value="Right" />
+    </Style>
+
+    <!-- name field (transaction description, category name): same voice as the table rows -->
+    <Style x:Key="NameField" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+        <Setter Property="FontFamily" Value="{StaticResource Display}" />
+        <Setter Property="FontWeight" Value="Light" />
+        <Setter Property="FontSize" Value="{StaticResource SizeValue}" />
+    </Style>
+
+    <!-- ───────────── thin scrolling ───────────── -->
+    <ControlTemplate x:Key="ThinThumb" TargetType="Thumb">
+        <Border x:Name="ThumbFill" Background="{DynamicResource RuleStrong}" />
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="ThumbFill" Property="Background" Value="{DynamicResource Ink3}" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <Style TargetType="ScrollBar">
+        <Setter Property="Width" Value="6" />
+        <Setter Property="MinWidth" Value="6" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ScrollBar">
+                    <Track x:Name="PART_Track" IsDirectionReversed="True">
+                        <Track.Thumb>
+                            <Thumb Template="{StaticResource ThinThumb}" Margin="2,0" />
+                        </Track.Thumb>
+                    </Track>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="Orientation" Value="Horizontal">
+                <Setter Property="Width" Value="Auto" />
+                <Setter Property="MinWidth" Value="0" />
+                <Setter Property="Height" Value="6" />
+                <Setter Property="MinHeight" Value="6" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ScrollBar">
+                            <Track x:Name="PART_Track" IsDirectionReversed="False">
+                                <Track.Thumb>
+                                    <Thumb Template="{StaticResource ThinThumb}" Margin="0,2" />
+                                </Track.Thumb>
+                            </Track>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style TargetType="ToolTip">
+        <Setter Property="Background" Value="{DynamicResource Surface}" />
+        <Setter Property="Foreground" Value="{DynamicResource Ink}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource RuleStrong}" />
+        <Setter Property="FontFamily" Value="{StaticResource Mono}" />
+        <Setter Property="FontSize" Value="{StaticResource SizeLabel}" />
+        <Setter Property="FontWeight" Value="Normal" />
+        <Setter Property="HasDropShadow" Value="False" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToolTip">
+                    <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" Padding="10,6">
+                        <ContentPresenter />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>

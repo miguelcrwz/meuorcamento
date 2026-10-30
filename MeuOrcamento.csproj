@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>MeuOrcamento</RootNamespace>
+    <AssemblyName>MeuOrcamento</AssemblyName>
+    <ApplicationIcon>app.ico</ApplicationIcon>
+    <Product>Meu Orçamento</Product>
+    <Version>2.0.0</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Resource Include="app.ico" />
+    <!-- JetBrains Mono NL (SIL OFL license) ships inside the .exe -->
+    <Resource Include="Fonts\*.ttf" />
+  </ItemGroup>
+
+  <!-- the tests live in Tests\ with their own .csproj; nothing from there goes into the app -->
+  <ItemGroup>
+    <Compile Remove="Tests\**" />
+    <Page Remove="Tests\**" />
+    <None Remove="Tests\**" />
+    <Resource Remove="Tests\**" />
+    <EmbeddedResource Remove="Tests\**" />
+  </ItemGroup>
+
+</Project>

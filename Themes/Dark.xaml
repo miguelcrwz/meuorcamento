@@ -1,0 +1,26 @@
+<!-- Light ink on black paper. No brand color: color belongs to the categories and to the alert. -->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <SolidColorBrush x:Key="Paper" Color="#0A0A0A" />
+    <SolidColorBrush x:Key="Surface" Color="#111112" />
+    <SolidColorBrush x:Key="Highlight" Color="#161617" />
+    <SolidColorBrush x:Key="Rule" Color="#222224" />
+    <SolidColorBrush x:Key="RuleStrong" Color="#38383C" />
+    <SolidColorBrush x:Key="Ink" Color="#EDEDEA" />
+    <SolidColorBrush x:Key="InkStrong" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="Ink2" Color="#9C9C9A" />
+    <SolidColorBrush x:Key="Ink3" Color="#7E7E7C" /> <!-- 4.9:1 on the paper, 4.6:1 on the drawer -->
+    <SolidColorBrush x:Key="Alert" Color="#F04B3A" />
+    <SolidColorBrush x:Key="OnAlert" Color="#0A0A0A" />
+    <SolidColorBrush x:Key="Scrim" Color="#99000000" />
+    <SolidColorBrush x:Key="CloseHover" Color="#C42B1C" />
+
+    <!-- category colors: fixed order, checked for color blindness; no orange or red, so they're never mistaken for the alert -->
+    <SolidColorBrush x:Key="Category0" Color="#3987E5" />
+    <SolidColorBrush x:Key="Category1" Color="#199E70" />
+    <SolidColorBrush x:Key="Category2" Color="#9085E9" />
+    <SolidColorBrush x:Key="Category3" Color="#008300" />
+    <SolidColorBrush x:Key="Category4" Color="#D45AA8" />
+    <SolidColorBrush x:Key="Category5" Color="#8C8C2C" />
+    <SolidColorBrush x:Key="Category6" Color="#1F93B4" />
+</ResourceDictionary>

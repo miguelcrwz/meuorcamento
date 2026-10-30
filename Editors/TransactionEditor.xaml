@@ -1,0 +1,77 @@
+<UserControl x:Class="MeuOrcamento.Editors.TransactionEditor"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:c="clr-namespace:MeuOrcamento.Controls">
+    <StackPanel>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="24" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel>
+                <TextBlock x:Name="AmountLabel" Text="VALOR · R$" Style="{StaticResource Label}" />
+                <c:NumberBox x:Name="Amount" Style="{StaticResource LargeField}" Margin="0,4,0,0" />
+            </StackPanel>
+            <!-- a single choice next to the amount: a one-off, every month, or split into installments -->
+            <StackPanel Grid.Column="2">
+                <TextBlock Text="REPETE" Style="{StaticResource Label}" />
+                <StackPanel x:Name="RepeatsOptions" Orientation="Horizontal" Margin="0,8,0,0">
+                    <RadioButton x:Name="OnceOption" GroupName="repeats" Style="{StaticResource Segment}" Content="NÃO" IsChecked="True" />
+                    <RadioButton x:Name="MonthlyOption" GroupName="repeats" Style="{StaticResource Segment}" Content="TODO MÊS" Margin="-1,0,0,0" />
+                    <RadioButton x:Name="SplitOption" GroupName="repeats" Style="{StaticResource Segment}" Content="PARCELADO" Margin="-1,0,0,0" />
+                </StackPanel>
+                <!-- as wide as the options, so it wraps instead of widening the column -->
+                <TextBlock x:Name="RepeatsHelp" Style="{StaticResource Help}" Margin="0,8,0,0" HorizontalAlignment="Left"
+                           Width="{Binding ActualWidth, ElementName=RepeatsOptions}" />
+            </StackPanel>
+        </Grid>
+
+        <Grid x:Name="InstallmentPanel" Margin="0,24,0,0" Visibility="Collapsed">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="24" />
+                <ColumnDefinition />
+                <ColumnDefinition Width="24" />
+                <ColumnDefinition Width="1.4*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <StackPanel>
+                <TextBlock Text="PARCELAS" Style="{StaticResource Label}" />
+                <c:NumberBox x:Name="InstallmentCount" Decimals="0" Minimum="2" Maximum="72" Margin="0,2,0,0" />
+            </StackPanel>
+            <StackPanel Grid.Column="2">
+                <TextBlock Text="PARCELA ATUAL" Style="{StaticResource Label}" />
+                <c:NumberBox x:Name="InstallmentNumber" Decimals="0" Minimum="1" Maximum="72" Margin="0,2,0,0" />
+            </StackPanel>
+            <StackPanel Grid.Column="4">
+                <TextBlock Text="VALOR DA PARCELA · R$" Style="{StaticResource Label}" />
+                <c:NumberBox x:Name="InstallmentAmount" Margin="0,2,0,0" />
+            </StackPanel>
+            <TextBlock x:Name="InstallmentSummary" Grid.Row="1" Grid.ColumnSpan="5" Style="{StaticResource Help}" Margin="0,10,0,0" />
+        </Grid>
+
+        <TextBlock Text="DESCRIÇÃO" Style="{StaticResource Label}" Margin="0,30,0,0" />
+        <TextBox x:Name="Description" Style="{StaticResource NameField}" Margin="0,2,0,0" />
+        <WrapPanel x:Name="Suggestions" Margin="0,10,0,0" />
+
+        <DockPanel Margin="0,30,0,4">
+            <TextBlock x:Name="AvailableCaption" Text="DISPONÍVEL" Style="{StaticResource Label}" DockPanel.Dock="Right" />
+            <TextBlock Text="CATEGORIA" Style="{StaticResource Label}" />
+        </DockPanel>
+        <StackPanel x:Name="Categories" />
+
+        <StackPanel Width="140" HorizontalAlignment="Left" Margin="0,30,0,0">
+            <TextBlock x:Name="DayLabel" Text="DIA" Style="{StaticResource Label}" />
+            <c:NumberBox x:Name="Day" Decimals="0" Minimum="1" Margin="0,2,0,0" />
+            <TextBlock x:Name="Weekday" Style="{StaticResource Help}" Margin="0,8,0,0" />
+        </StackPanel>
+
+        <Border BorderBrush="{DynamicResource RuleStrong}" BorderThickness="0,1,0,0" Margin="0,30,0,0" Padding="0,14,0,0">
+            <TextBlock x:Name="Outcome" Style="{StaticResource LabelBright}" TextWrapping="Wrap" TextTrimming="None" />
+        </Border>
+    </StackPanel>
+</UserControl>
