@@ -17,10 +17,26 @@ public partial class App : Application
         base.OnStartup(e);
         ConfigureCulture();
 
-        // --dados <file> uses another data file (e.g. a OneDrive folder, or a test file)
+        // --dados <file> uses another data file (e.g. a test file); without it, the saved location, or the default
         var path = Repository.DefaultPath;
         var i = Array.IndexOf(e.Args, "--dados");
-        if (i >= 0 && i + 1 < e.Args.Length) path = e.Args[i + 1];
+        if (i >= 0 && i + 1 < e.Args.Length)
+        {
+            path = e.Args[i + 1];
+        }
+        else if (Repository.ReadLocation(Repository.LocationFile) is { } saved)
+        {
+            // the saved file went missing (OneDrive not synced, folder renamed): better not to open than to start empty
+            if (!File.Exists(saved))
+            {
+                MessageBox.Show($"O arquivo de dados deveria estar em:\n{saved}\n\nmas não foi encontrado. Se ele fica no OneDrive, " +
+                    "confira se o OneDrive está conectado e sincronizado e abra o Meu Orçamento de novo.",
+                    "Meu Orçamento", MessageBoxButton.OK, MessageBoxImage.Error);
+                Shutdown();
+                return;
+            }
+            path = saved;
+        }
 
         // two windows on the same file would overwrite each other: the second one only brings the first forward
         _instanceLock = new Mutex(true, LockName(path), out bool first);

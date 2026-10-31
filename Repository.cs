@@ -27,8 +27,20 @@ public class Repository
         ("Reserva de emergência", CategoryKind.Investment, 10),
     };
 
-    public static string DefaultPath => Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "MeuOrcamento", "dados.json");
+    static string AppFolder => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "MeuOrcamento");
+
+    public static string DefaultPath => Path.Combine(AppFolder, "dados.json");
+
+    /// <summary>Remembers a data file kept somewhere else (e.g. in OneDrive): one line with the file's full path.</summary>
+    public static string LocationFile => Path.Combine(AppFolder, "data-location.txt");
+
+    /// <summary>The path saved in a location file, or null when there is none.</summary>
+    public static string? ReadLocation(string locationFile)
+    {
+        if (!File.Exists(locationFile)) return null;
+        var path = File.ReadAllText(locationFile).Trim();
+        return path.Length > 0 ? path : null;
+    }
 
     public string FilePath { get; }
     public BudgetData Data { get; }

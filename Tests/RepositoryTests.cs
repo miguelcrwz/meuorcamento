@@ -52,6 +52,19 @@ static class RepositoryTests
 
         Protections(repo);
         FileFormat();
+        DataLocation();
+    }
+
+    /// <summary>The location file that points to a data file kept elsewhere, like OneDrive.</summary>
+    static void DataLocation()
+    {
+        var location = DataPath("data-location.txt");
+        Check("without a location file, the default path is used", Repository.ReadLocation(location) == null);
+        File.WriteAllText(location, "  C:\\Users\\alguem\\OneDrive\\MeuOrcamento\\dados.json \r\n");
+        Check("a location file points to the data file kept elsewhere",
+            Repository.ReadLocation(location) == @"C:\Users\alguem\OneDrive\MeuOrcamento\dados.json", Repository.ReadLocation(location));
+        File.WriteAllText(location, "\r\n");
+        Check("an empty location file is ignored", Repository.ReadLocation(location) == null);
     }
 
     /// <summary>What prevents losing data: conflict, failed write, locked or malformed file.</summary>
