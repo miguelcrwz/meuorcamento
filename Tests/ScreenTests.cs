@@ -117,6 +117,15 @@ static class ScreenTests
         ((ScrollViewer)Field<ContentControl>(window, "DrawerContent").Parent).ScrollToEnd();
         Wait(150);
         Capture(window, "drawer-payment");
+        double Top(FrameworkElement e) => e.TranslatePoint(new Point(0, 0), paid).Y;
+        double Bottom(FrameworkElement e) => e.TranslatePoint(new Point(0, e.ActualHeight), paid).Y;
+        var day = Field<NumberBox>(paid, "Day");
+        var options = Field<StackPanel>(paid, "PaymentOptions");
+        var weekday = Field<TextBlock>(paid, "Weekday");
+        var help = Field<TextBlock>(paid, "PaymentHelp");
+        Check("the payment options sit on the day's underline, and both helps start at the same height, on one line",
+            Math.Abs(Bottom(day) - Bottom(options)) < 0.5 && Math.Abs(Top(weekday) - Top(help)) < 0.5 && weekday.DesiredSize.Height == help.DesiredSize.Height,
+            $"day {Bottom(day):0} options {Bottom(options):0} · weekday {Top(weekday):0} help {Top(help):0} · {weekday.DesiredSize.Height:0}/{help.DesiredSize.Height:0} px");
         window.CloseDrawer(false);
         Wait(100);
         Drawer(window, new AllocationEditor(repo, october), "drawer-allocation");

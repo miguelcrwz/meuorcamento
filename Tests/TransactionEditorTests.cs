@@ -76,6 +76,7 @@ static class TransactionEditorTests
         Check("the payment method is optional", ed.Problem() == null, ed.Problem());
         var pix = Field<RadioButton>(ed, "PixOption");
         pix.IsChecked = true;
+        Check("once chosen, the help says how to clear it", Field<TextBlock>(ed, "PaymentHelp").Text.Contains("de novo"), Field<TextBlock>(ed, "PaymentHelp").Text);
         pix.RaiseEvent(new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Left) { RoutedEvent = UIElement.PreviewMouseLeftButtonDownEvent });
         Check("clicking the chosen method again clears it", pix.IsChecked == false);
         pix.IsChecked = true;

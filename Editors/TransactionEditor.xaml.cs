@@ -75,12 +75,17 @@ public partial class TransactionEditor : UserControl, IEditor
         // a purchase in installments is usually on the credit card; only when the person picks it, so a saved one stays as it was
         SplitOption.Checked += (_, _) => { if (ChosenPayment is null) ChoosePayment(PaymentMethod.Credit); };
         foreach (var option in PaymentOptions.Children.OfType<RadioButton>())
+        {
             option.PreviewMouseLeftButtonDown += (_, e) => { if (option.IsChecked == true) { option.IsChecked = false; e.Handled = true; } };
+            option.Checked += (_, _) => RefreshPaymentHelp();
+            option.Unchecked += (_, _) => RefreshPaymentHelp();
+        }
         Day.ValueTyped += (_, _) => RefreshDay();
         Description.TextChanged += (_, _) => ShowSuggestions();
         Description.LostKeyboardFocus += (_, e) => CompleteOnLeave(e.NewFocus as DependencyObject);
         RefreshAvailable();
         RefreshDay();
+        RefreshPaymentHelp();
         RepeatsChanged();
     }
 
@@ -104,6 +109,9 @@ public partial class TransactionEditor : UserControl, IEditor
         DebitOption.IsChecked = method == PaymentMethod.Debit;
         PixOption.IsChecked = method == PaymentMethod.Pix;
     }
+
+    // one short line, so it never wraps under the options
+    void RefreshPaymentHelp() => PaymentHelp.Text = ChosenPayment is null ? "Opcional." : "Clique de novo para tirar.";
 
     void AddOption(Category category)
     {
@@ -154,7 +162,8 @@ public partial class TransactionEditor : UserControl, IEditor
     {
         var start = _month.Start;
         var date = new DateTime(start.Year, start.Month, (int)Math.Clamp(Day.Value, 1, Day.Maximum));
-        Weekday.Text = Format.Capitalize(date.ToString("dddd, d 'de' MMMM", Format.PtBr));
+        // just the weekday: the label already names the month, and the full date would wrap beside the payment help
+        Weekday.Text = Format.Capitalize(date.ToString("dddd", Format.PtBr));
     }
 
     // ───────────── installments ─────────────
