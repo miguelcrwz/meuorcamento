@@ -56,6 +56,7 @@ english; the app itself speaks portuguese (pt-BR, R$).
 [x] split the income by % or by a fixed amount per category
 [x] expenses and investments, with what is left per category and overspend in red
 [x] transactions: one-off, monthly (recurring) or in installments (parcelado)
+[x] payment method per transaction: crédito, débito or pix, with a total for each
 [x] installments move on to the following months and stop after the last one
 [x] history: income, spent, invested and free per month, bar colored by category
 [x] search and filter transactions, export a month to csv (opens in excel)
@@ -77,7 +78,7 @@ storage     one json file via System.Text.Json
 charts      hand-drawn FrameworkElements (OnRender), no chart library
 fonts       jetbrains mono nl (embedded, ofl) + bahnschrift and segoe ui (windows)
 packages    none
-tests       custom console runner: 109 checks + a png of every screen
+tests       custom console runner: 123 checks + a png of every screen
 tooling     dotnet cli / visual studio
 ```
 
@@ -171,6 +172,7 @@ Categorias      Id, Nome, Tipo (Gasto | Investimento), Cor (0-6)
 Meses           Chave (yyyy-MM), Salario, RendaExtra
   Alocacoes     CategoriaId, Percentual, ValorFixo (optional, in R$)
   Lancamentos   Id, Data, Descricao, Valor, CategoriaId, Recorrente,
+                FormaPagamento (optional): Credito | Debito | Pix
                 Parcelamento (only on installments):
                   Compra    the purchase id, shared by all its installments
                   Parcela   this installment's number
@@ -200,7 +202,7 @@ delete it   ─> this one and the following ones go; earlier months keep theirs
 ```
 
 ```
-109 passed · 0 failed
+123 passed · 0 failed
 ```
 
 the test data is fake and the tests never open your `dados.json`. the font audit fails any text outside the type scale. more in [`Tests/README.md`](Tests/README.md).

@@ -194,6 +194,7 @@ public class Repository
                     Amount = t.Amount,
                     CategoryId = t.CategoryId,
                     Recurring = true,
+                    Payment = t.Payment,
                 });
             }
             // each installment moves on by the months in between; the purchase stops after the last one
@@ -235,6 +236,7 @@ public class Repository
         Description = source.Description,
         Amount = source.Installment!.AmountOf(number),
         CategoryId = source.CategoryId,
+        Payment = source.Payment,
         Installment = source.Installment with { Number = number },
     };
 

@@ -45,6 +45,7 @@ public partial class TransactionEditor : UserControl, IEditor
             Description.Text = existing.Description;
             Day.Value = Math.Clamp(existing.Date.Day, 1, Day.Maximum);
             Choose(existing.CategoryId);
+            ChoosePayment(existing.Payment);
             if (existing.Installment is { } plan)
             {
                 SplitOption.IsChecked = true;
@@ -71,6 +72,10 @@ public partial class TransactionEditor : UserControl, IEditor
         InstallmentNumber.ValueTyped += (_, _) => RefreshInstallments();
         foreach (var option in new[] { OnceOption, MonthlyOption, SplitOption })
             option.Checked += (_, _) => RepeatsChanged();
+        // a purchase in installments is usually on the credit card; only when the person picks it, so a saved one stays as it was
+        SplitOption.Checked += (_, _) => { if (ChosenPayment is null) ChoosePayment(PaymentMethod.Credit); };
+        foreach (var option in PaymentOptions.Children.OfType<RadioButton>())
+            option.PreviewMouseLeftButtonDown += (_, e) => { if (option.IsChecked == true) { option.IsChecked = false; e.Handled = true; } };
         Day.ValueTyped += (_, _) => RefreshDay();
         Description.TextChanged += (_, _) => ShowSuggestions();
         Description.LostKeyboardFocus += (_, e) => CompleteOnLeave(e.NewFocus as DependencyObject);
@@ -86,6 +91,19 @@ public partial class TransactionEditor : UserControl, IEditor
     Category? Chosen => _options.FirstOrDefault(o => o.Option.IsChecked == true).Category;
 
     bool IsSplit => SplitOption.IsChecked == true;
+
+    PaymentMethod? ChosenPayment =>
+        CreditOption.IsChecked == true ? PaymentMethod.Credit
+        : DebitOption.IsChecked == true ? PaymentMethod.Debit
+        : PixOption.IsChecked == true ? PaymentMethod.Pix
+        : null;
+
+    void ChoosePayment(PaymentMethod? method)
+    {
+        CreditOption.IsChecked = method == PaymentMethod.Credit;
+        DebitOption.IsChecked = method == PaymentMethod.Debit;
+        PixOption.IsChecked = method == PaymentMethod.Pix;
+    }
 
     void AddOption(Category category)
     {
@@ -258,7 +276,7 @@ public partial class TransactionEditor : UserControl, IEditor
         if (_previous.TryGetValue(Description.Text.Trim(), out var previous)) Use(previous, onlyEmpty: true);
     }
 
-    /// <summary>Reuses an older transaction with the same description (as a single amount, not its installments).</summary>
+    /// <summary>Reuses an older transaction with the same description (as a single amount, not its installments), payment method included.</summary>
     void Use(Transaction previous, bool onlyEmpty)
     {
         if (!onlyEmpty) Description.Text = previous.Description;
@@ -271,6 +289,7 @@ public partial class TransactionEditor : UserControl, IEditor
             if (IsSplit) InstallmentAmount.Value = RegularInstallment();
         }
         if (!onlyEmpty) (previous.Recurring ? MonthlyOption : OnceOption).IsChecked = true;
+        if (previous.Payment != null && (!onlyEmpty || ChosenPayment is null)) ChoosePayment(previous.Payment);
         Suggestions.Children.Clear();
         RefreshInstallments();
     }
@@ -297,6 +316,7 @@ public partial class TransactionEditor : UserControl, IEditor
         transaction.Description = Description.Text.Trim();
         transaction.CategoryId = Chosen!.Id;
         transaction.Date = new DateTime(start.Year, start.Month, (int)Math.Clamp(Day.Value, 1, Day.Maximum));
+        transaction.Payment = ChosenPayment;
         if (IsSplit)
         {
             transaction.Installment = PlanFromFields(previousPlan?.PurchaseId ?? Guid.NewGuid());

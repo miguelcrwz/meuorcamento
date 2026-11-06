@@ -2,6 +2,7 @@ using System.Collections;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using MeuOrcamento.Controls;
 using MeuOrcamento.Editors;
 using static MeuOrcamento.Tests.Harness;
@@ -57,6 +58,63 @@ static class TransactionEditorTests
         Check("fills in when moving to another field of the form", Field<NumberBox>(ed5, "Amount").Value == 150, $"{Field<NumberBox>(ed5, "Amount").Value}");
 
         Installments();
+        Payment();
+    }
+
+    /// <summary>Crédito, débito or pix: optional, cleared by clicking again, reused by suggestions, carried to the next months.</summary>
+    static void Payment()
+    {
+        Section("PAYMENT");
+        var repo = NewRepository("payment.json");
+        var oct = repo.CreateMonth(new DateTime(2026, 10, 1));
+        oct.Salary = 5000;
+        var nov = repo.CreateMonth(new DateTime(2026, 11, 1));
+
+        var ed = new TransactionEditor(repo, oct, null, oct.Allocations[1].CategoryId);
+        Field<NumberBox>(ed, "Amount").Value = 80;
+        Field<TextBox>(ed, "Description").Text = "Farmácia";
+        Check("the payment method is optional", ed.Problem() == null, ed.Problem());
+        var pix = Field<RadioButton>(ed, "PixOption");
+        pix.IsChecked = true;
+        pix.RaiseEvent(new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Left) { RoutedEvent = UIElement.PreviewMouseLeftButtonDownEvent });
+        Check("clicking the chosen method again clears it", pix.IsChecked == false);
+        pix.IsChecked = true;
+        ed.Apply();
+        var pharmacy = oct.Transactions.Single(t => t.Description == "Farmácia");
+        Check("saving keeps the method", pharmacy.Payment == PaymentMethod.Pix, $"{pharmacy.Payment}");
+        Check("editing shows the saved method", Field<RadioButton>(new TransactionEditor(repo, oct, pharmacy, null), "PixOption").IsChecked == true);
+
+        var again = new TransactionEditor(repo, oct, null, null);
+        Call(again, "Use", pharmacy, false);
+        Check("a suggestion brings its payment method too", Field<RadioButton>(again, "PixOption").IsChecked == true);
+
+        var tv = new TransactionEditor(repo, oct, null, oct.Allocations[3].CategoryId);
+        Field<NumberBox>(tv, "Amount").Text = "3.000,00";
+        Field<TextBox>(tv, "Description").Text = "TV";
+        Field<RadioButton>(tv, "SplitOption").IsChecked = true;
+        Field<NumberBox>(tv, "InstallmentCount").Text = "10";
+        Check("choosing PARCELADO picks CRÉDITO", Field<RadioButton>(tv, "CreditOption").IsChecked == true);
+        tv.Apply();
+        var tvNov = nov.Transactions.Single(t => t.Description == "TV");
+        Check("the next months' installments keep the method", tvNov.Payment == PaymentMethod.Credit, $"{tvNov.Payment}");
+
+        var debit = new TransactionEditor(repo, oct, null, oct.Allocations[3].CategoryId);
+        Field<RadioButton>(debit, "DebitOption").IsChecked = true;
+        Field<RadioButton>(debit, "SplitOption").IsChecked = true;
+        Check("PARCELADO keeps a method already chosen",
+            Field<RadioButton>(debit, "DebitOption").IsChecked == true && Field<RadioButton>(debit, "CreditOption").IsChecked == false);
+
+        var window = OpenWindow(repo);
+        window.GoTo(new DateTime(2026, 10, 1));
+        List<TransactionRow> Rows() => ((IEnumerable)Field<ItemsControl>(window, "TransactionTable").ItemsSource).Cast<TransactionRow>().ToList();
+        Check("the table shows the method",
+            Rows().Single(r => r.Description == "Farmácia").Payment == "PIX" && Rows().Single(r => r.Description == "TV").Payment == "CRÉDITO");
+        var totals = Field<TextBlock>(window, "PaymentTotals").Text;
+        Check("the footer adds up each method", totals == "CRÉDITO 300,00   PIX 80,00", totals);
+        Field<TextBox>(window, "Search").Text = "credito";
+        Check("searching \"credito\" finds what went on the credit card", Rows().Select(r => r.Description).SequenceEqual(new[] { "TV" }),
+            string.Join(", ", Rows().Select(r => r.Description)));
+        window.Close();
     }
 
     /// <summary>A purchase split into installments: the split, the following months, editing and deleting.</summary>

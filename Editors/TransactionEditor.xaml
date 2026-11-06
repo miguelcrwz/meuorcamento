@@ -2,12 +2,13 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:c="clr-namespace:MeuOrcamento.Controls">
-    <StackPanel>
+    <!-- REPETE and PAGAMENTO share the right column, so their options line up -->
+    <StackPanel Grid.IsSharedSizeScope="True">
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
                 <ColumnDefinition Width="24" />
-                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" SharedSizeGroup="Options" />
             </Grid.ColumnDefinitions>
             <StackPanel>
                 <TextBlock x:Name="AmountLabel" Text="VALOR · R$" Style="{StaticResource Label}" />
@@ -64,11 +65,29 @@
         </DockPanel>
         <StackPanel x:Name="Categories" />
 
-        <StackPanel Width="140" HorizontalAlignment="Left" Margin="0,30,0,0">
-            <TextBlock x:Name="DayLabel" Text="DIA" Style="{StaticResource Label}" />
-            <c:NumberBox x:Name="Day" Decimals="0" Minimum="1" Margin="0,2,0,0" />
-            <TextBlock x:Name="Weekday" Style="{StaticResource Help}" Margin="0,8,0,0" />
-        </StackPanel>
+        <Grid Margin="0,30,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="24" />
+                <ColumnDefinition Width="Auto" SharedSizeGroup="Options" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Width="140" HorizontalAlignment="Left">
+                <TextBlock x:Name="DayLabel" Text="DIA" Style="{StaticResource Label}" />
+                <c:NumberBox x:Name="Day" Decimals="0" Minimum="1" Margin="0,2,0,0" />
+                <TextBlock x:Name="Weekday" Style="{StaticResource Help}" Margin="0,8,0,0" />
+            </StackPanel>
+            <!-- optional: clicking the chosen one again clears it -->
+            <StackPanel Grid.Column="2">
+                <TextBlock Text="PAGAMENTO" Style="{StaticResource Label}" />
+                <StackPanel x:Name="PaymentOptions" Orientation="Horizontal" Margin="0,8,0,0">
+                    <RadioButton x:Name="CreditOption" GroupName="payment" Style="{StaticResource Segment}" Content="CRÉDITO" />
+                    <RadioButton x:Name="DebitOption" GroupName="payment" Style="{StaticResource Segment}" Content="DÉBITO" Margin="-1,0,0,0" />
+                    <RadioButton x:Name="PixOption" GroupName="payment" Style="{StaticResource Segment}" Content="PIX" Margin="-1,0,0,0" />
+                </StackPanel>
+                <TextBlock Text="Opcional. Clicar de novo desmarca." Style="{StaticResource Help}" Margin="0,8,0,0" HorizontalAlignment="Left"
+                           Width="{Binding ActualWidth, ElementName=RepeatsOptions}" />
+            </StackPanel>
+        </Grid>
 
         <Border BorderBrush="{DynamicResource RuleStrong}" BorderThickness="0,1,0,0" Margin="0,30,0,0" Padding="0,14,0,0">
             <TextBlock x:Name="Outcome" Style="{StaticResource LabelBright}" TextWrapping="Wrap" TextTrimming="None" />

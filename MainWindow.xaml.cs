@@ -231,7 +231,8 @@ public partial class MainWindow : Window
         SearchHint.Visibility = VisibleIf(Search.Text.Length == 0);
         var items = month.Transactions
             .Where(t => _filter == null || t.CategoryId == _filter)
-            .Where(t => term.Length == 0 || Format.Contains(t.Description, term))
+            // the search also finds the payment method: "pix", "credito"
+            .Where(t => term.Length == 0 || Format.Contains(t.Description, term) || Format.Contains(Format.Payment(t.Payment), term))
             .OrderByDescending(t => t.Date)
             .ThenBy(t => t.Description, StringComparer.CurrentCultureIgnoreCase)
             .ToList();
@@ -243,7 +244,7 @@ public partial class MainWindow : Window
             // the date only shows on the first row of each day
             var category = _repo.FindCategory(t.CategoryId);
             rows.Add(new TransactionRow(t, t.Date.Date == previous ? "" : Format.Day(t.Date), t.Description,
-                category?.Name ?? "—", CategoryColors.For(category?.Color ?? 0), Repeats(t), Format.Number(t.Amount)));
+                category?.Name ?? "—", CategoryColors.For(category?.Color ?? 0), Format.Payment(t.Payment), Repeats(t), Format.Number(t.Amount)));
             previous = t.Date.Date;
         }
         TransactionTable.ItemsSource = rows;
@@ -251,6 +252,10 @@ public partial class MainWindow : Window
         TransactionsNote.Text = Format.LongMonth(_month).ToLower(Format.PtBr);
         TransactionsCount.Text = $"{items.Count:00} LANÇAMENTO(S){(_filter != null || term.Length > 0 ? " · FILTRADO" : "")}";
         TransactionsTotal.Text = Format.Number(items.Sum(t => t.Amount));
+        // how much went on each method, e.g. what the credit card bill will have from this month
+        PaymentTotals.Text = string.Join("   ", items.Where(t => t.Payment != null)
+            .GroupBy(t => t.Payment!.Value).OrderBy(g => g.Key)
+            .Select(g => $"{Format.Payment(g.Key)} {Format.Number(g.Sum(t => t.Amount))}"));
         NoTransactions.Text = items.Count > 0 ? ""
             : month.Transactions.Count == 0 ? "Nenhum lançamento neste mês ainda." : "Nada com esse filtro.";
     }
@@ -470,7 +475,7 @@ public partial class MainWindow : Window
         if (dialog.ShowDialog(this) != true) return;
 
         static string Field(string s) => s.Contains(';') || s.Contains('"') ? $"\"{s.Replace("\"", "\"\"")}\"" : s;
-        var csv = new StringBuilder("Data;Descrição;Categoria;Tipo;Valor;Recorrente;Parcela\r\n");
+        var csv = new StringBuilder("Data;Descrição;Categoria;Tipo;Valor;Recorrente;Parcela;Pagamento\r\n");
         foreach (var t in month.Transactions.OrderBy(t => t.Date))
         {
             var c = _repo.FindCategory(t.CategoryId);
@@ -479,7 +484,8 @@ public partial class MainWindow : Window
             // "3 de 10", not "3/10", which Excel would read as a date
             string installment = t.Installment is { } plan ? $"{plan.Number} de {plan.Count}" : "";
             csv.Append($"{t.Date:dd/MM/yyyy};{Field(t.Description)};{Field(c?.Name ?? "")};{kind};")
-               .Append($"{t.Amount.ToString("0.00", Format.PtBr)};{(t.Recurring ? "Sim" : "Não")};{installment}\r\n");
+               .Append($"{t.Amount.ToString("0.00", Format.PtBr)};{(t.Recurring ? "Sim" : "Não")};{installment};")
+               .Append($"{Format.Capitalize(Format.Payment(t.Payment).ToLower(Format.PtBr))}\r\n");
         }
         try { File.WriteAllText(dialog.FileName, csv.ToString(), new UTF8Encoding(true)); }
         catch (Exception ex)

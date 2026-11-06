@@ -17,12 +17,14 @@ static class RepositoryTests
 
         jan.Salary = 5000;
         var cat = repo.Data.Categories[0].Id;
-        jan.Transactions.Add(new Transaction { Date = new DateTime(2027, 1, 31), Description = "Aluguel", Amount = 1800.55m, CategoryId = cat, Recurring = true });
+        jan.Transactions.Add(new Transaction { Date = new DateTime(2027, 1, 31), Description = "Aluguel", Amount = 1800.55m, CategoryId = cat, Recurring = true,
+            Payment = PaymentMethod.Pix });
         jan.Transactions.Add(new Transaction { Date = new DateTime(2027, 1, 10), Description = "Mercado", Amount = 300m, CategoryId = cat });
         var feb = repo.CreateMonth(new DateTime(2027, 2, 1));
         Check("a new month copies the salary", feb.Salary == 5000);
         Check("a new month copies only the recurring transactions", feb.Transactions.Count == 1, $"{feb.Transactions.Count}");
         Check("a recurring one on the 31st lands on Feb 28", feb.Transactions.Single().Date == new DateTime(2027, 2, 28), feb.Transactions.Single().Date.ToString("d"));
+        Check("a recurring one keeps its payment method", feb.Transactions.Single().Payment == PaymentMethod.Pix, $"{feb.Transactions.Single().Payment}");
         Check("extra income doesn't carry over to the next month", feb.ExtraIncome == 0);
 
         jan.ExtraIncome = 123.45m;
@@ -149,5 +151,12 @@ static class RepositoryTests
         var saved = File.ReadAllText(path);
         Check("saves with the same names", saved.Contains("\"Lancamentos\"") && saved.Contains("\"Descricao\"") && saved.Contains("\"Investimento\"")
             && !saved.Contains("\"Transactions\"") && !saved.Contains("\"Investment\""));
+        Check("a transaction from before payment methods has none, and none is written", t.Payment == null && !saved.Contains("\"FormaPagamento\""));
+
+        t.Payment = PaymentMethod.Debit;
+        repo.Save();
+        saved = File.ReadAllText(path);
+        Check("the payment method is saved in portuguese and read back",
+            saved.Contains("\"FormaPagamento\": \"Debito\"") && new Repository(path).Data.Months.Single().Transactions.Single().Payment == PaymentMethod.Debit);
     }
 }

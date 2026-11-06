@@ -11,6 +11,13 @@ public enum CategoryKind
     [JsonStringEnumMemberName("Investimento")] Investment,
 }
 
+public enum PaymentMethod
+{
+    [JsonStringEnumMemberName("Credito")] Credit,
+    [JsonStringEnumMemberName("Debito")] Debit,
+    [JsonStringEnumMemberName("Pix")] Pix,
+}
+
 /// <summary>A "share" of the salary: fixed costs, leisure, investments... The color is tied to the category.</summary>
 public class Category
 {
@@ -40,6 +47,10 @@ public class Transaction
 
     /// <summary>Copied automatically when the next month is planned.</summary>
     [JsonPropertyName("Recorrente")] public bool Recurring { get; set; }
+
+    /// <summary>Credit card, debit card or pix. Optional: null when not informed, as in files from earlier versions.</summary>
+    [JsonPropertyName("FormaPagamento"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public PaymentMethod? Payment { get; set; }
 
     /// <summary>Set when the transaction is one installment of a purchase split over several months.</summary>
     [JsonPropertyName("Parcelamento"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

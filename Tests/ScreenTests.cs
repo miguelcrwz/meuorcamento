@@ -48,8 +48,8 @@ static class ScreenTests
         Check("names and descriptions use Bahnschrift Light 17", wrong.Count == 0, string.Join("; ", wrong));
     }
 
-    static Transaction Tx(int y, int m, int d, string description, decimal amount, Guid category, bool recurring = false) =>
-        new() { Date = new DateTime(y, m, d), Description = description, Amount = amount, CategoryId = category, Recurring = recurring };
+    static Transaction Tx(int y, int m, int d, string description, decimal amount, Guid category, bool recurring = false, PaymentMethod? payment = null) =>
+        new() { Date = new DateTime(y, m, d), Description = description, Amount = amount, CategoryId = category, Recurring = recurring, Payment = payment };
 
     static void AllScreens()
     {
@@ -59,12 +59,12 @@ static class ScreenTests
         Guid Cat(string name) => repo.Data.Categories.First(c => c.Name == name).Id;
         september.Transactions.AddRange(new[]
         {
-            Tx(2026, 9, 5, "Aluguel", 1800, Cat("Gastos fixos"), true),
-            Tx(2026, 9, 10, "Internet", 120, Cat("Gastos fixos"), true),
-            Tx(2026, 9, 10, "Faculdade", 320, Cat("Educação"), true),
+            Tx(2026, 9, 5, "Aluguel", 1800, Cat("Gastos fixos"), true, PaymentMethod.Pix),
+            Tx(2026, 9, 10, "Internet", 120, Cat("Gastos fixos"), true, PaymentMethod.Credit),
+            Tx(2026, 9, 10, "Faculdade", 320, Cat("Educação"), true, PaymentMethod.Pix),
             Tx(2026, 9, 6, "Tesouro Selic", 1300, Cat("Investimentos"), true),
-            Tx(2026, 9, 14, "Mercado", 780, Cat("Dia a dia")),
-            Tx(2026, 9, 20, "Show", 450, Cat("Lazer")),
+            Tx(2026, 9, 14, "Mercado", 780, Cat("Dia a dia"), payment: PaymentMethod.Debit),
+            Tx(2026, 9, 20, "Show", 450, Cat("Lazer"), payment: PaymentMethod.Credit),
         });
         var october = repo.CreateMonth(new DateTime(2026, 10, 1));
         Check("october inherits september's 4 recurring transactions", october.Transactions.Count == 4, $"{october.Transactions.Count}");
@@ -72,11 +72,11 @@ static class ScreenTests
         october.Allocations.First(a => a.CategoryId == Cat("Gastos fixos")).FixedAmount = 2500;
         october.Transactions.AddRange(new[]
         {
-            Tx(2026, 10, 3, "Mercado", 640, Cat("Dia a dia")),
-            Tx(2026, 10, 12, "Uber", 210, Cat("Dia a dia")),
-            Tx(2026, 10, 18, "Cinema e jantar", 980, Cat("Lazer")),
+            Tx(2026, 10, 3, "Mercado", 640, Cat("Dia a dia"), payment: PaymentMethod.Debit),
+            Tx(2026, 10, 12, "Uber", 210, Cat("Dia a dia"), payment: PaymentMethod.Credit),
+            Tx(2026, 10, 18, "Cinema e jantar", 980, Cat("Lazer"), payment: PaymentMethod.Credit),
             Tx(2026, 10, 20, "Reserva", 400, Cat("Reserva de emergência")),
-            Tx(2026, 10, 22, "Curso de C#", 89.9m, Cat("Educação")),
+            Tx(2026, 10, 22, "Curso de C#", 89.9m, Cat("Educação"), payment: PaymentMethod.Credit),
         });
         repo.Save();
 
@@ -109,6 +109,16 @@ static class ScreenTests
         Field<RadioButton>(split, "SplitOption").IsChecked = true;
         Field<NumberBox>(split, "InstallmentCount").Text = "10";
         Drawer(window, split, "drawer-installments");
+
+        // the end of the drawer: day and payment method side by side
+        var paid = new TransactionEditor(repo, october, october.Transactions.Single(t => t.Description == "Uber"), null);
+        _ = window.OpenDrawer(paid);
+        Wait(450);
+        ((ScrollViewer)Field<ContentControl>(window, "DrawerContent").Parent).ScrollToEnd();
+        Wait(150);
+        Capture(window, "drawer-payment");
+        window.CloseDrawer(false);
+        Wait(100);
         Drawer(window, new AllocationEditor(repo, october), "drawer-allocation");
         Drawer(window, new IncomeEditor(october, true), "drawer-income");
         Drawer(window, new ConfirmEditor("EXCLUIR · 22.10", "Curso de C#", "R$ 89,90 em Educação. Essa exclusão não pode ser desfeita.", "EXCLUIR"), "drawer-delete");

@@ -27,6 +27,15 @@ public static class Format
     /// <summary>"22.10"</summary>
     public static string Day(DateTime date) => date.ToString("dd'.'MM", PtBr);
 
+    /// <summary>"CRÉDITO", "DÉBITO", "PIX", or "" when not informed.</summary>
+    public static string Payment(PaymentMethod? method) => method switch
+    {
+        PaymentMethod.Credit => "CRÉDITO",
+        PaymentMethod.Debit => "DÉBITO",
+        PaymentMethod.Pix => "PIX",
+        _ => "",
+    };
+
     public static string Capitalize(string text) =>
         text.Length == 0 ? text : char.ToUpper(text[0], PtBr) + text[1..];
 

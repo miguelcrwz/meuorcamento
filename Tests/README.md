@@ -21,8 +21,8 @@ During the "single window" test the app really opens for 2 or 3 seconds and clos
 | File | What it covers |
 |---|---|
 | `NumberBoxTests.cs` | Reading values: `1.234,56`, `45.90`, `5.000`, invalid text, minimum and maximum, rounding, rejected keys |
-| `RepositoryTests.cs` | Creating and copying months (recurring ones, the 31st in February), cents on save and load, deleting a month with a backup copy, file conflicts, locked or malformed files, and reading files saved by earlier versions |
-| `TransactionEditorTests.cs` | Drawer validations, overspend warning, editing without duplicating, suggestions and the description autocomplete; installments: total ↔ installment, rounding cents, the following months, a purchase already under way, turning it back into a single amount, deleting from a month on |
+| `RepositoryTests.cs` | Creating and copying months (recurring ones, the 31st in February), cents on save and load, deleting a month with a backup copy, file conflicts, locked or malformed files, reading files saved by earlier versions, and saving the payment method |
+| `TransactionEditorTests.cs` | Drawer validations, overspend warning, editing without duplicating, suggestions and the description autocomplete; installments: total ↔ installment, rounding cents, the following months, a purchase already under way, turning it back into a single amount, deleting from a month on; payment method: optional, clicking again clears it, suggestions, installments default to crédito, the table, the footer totals and the search |
 | `AllocationEditorTests.cs` | % ↔ R$, fixed amounts, the 7-category limit, empty and repeated names, and that renaming a category doesn't rewrite past months |
 | `WindowTests.cs` | Pages, planning a month, the drawer (error, two-click confirmation, Enter on destructive actions), negative balance, overspend by cents, one window per file |
 | `ScreenTests.cs` | Captures every screen and drawer, tests the minimum window, values in the millions, long names, 40 transactions, first run and zero income, and **audits the fonts**: any text outside the type scale is a failure |

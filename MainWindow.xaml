@@ -251,18 +251,20 @@
                     </DockPanel>
                     <Grid Margin="0,22,0,10">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="90" />
+                            <ColumnDefinition Width="70" />
                             <ColumnDefinition />
-                            <ColumnDefinition Width="240" />
-                            <ColumnDefinition Width="110" />
+                            <ColumnDefinition Width="220" />
+                            <ColumnDefinition Width="90" />
+                            <ColumnDefinition Width="100" />
                             <ColumnDefinition Width="150" />
                             <ColumnDefinition Width="170" />
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="DATA" Style="{StaticResource Label}" />
                         <TextBlock Grid.Column="1" Text="DESCRIÇÃO" Style="{StaticResource Label}" />
                         <TextBlock Grid.Column="2" Text="CATEGORIA" Style="{StaticResource Label}" />
-                        <TextBlock Grid.Column="3" Text="REPETE" Style="{StaticResource Label}" />
-                        <TextBlock Grid.Column="4" Text="VALOR · R$" Style="{StaticResource Label}" TextAlignment="Right" />
+                        <TextBlock Grid.Column="3" Text="PAGAMENTO" Style="{StaticResource Label}" />
+                        <TextBlock Grid.Column="4" Text="REPETE" Style="{StaticResource Label}" />
+                        <TextBlock Grid.Column="5" Text="VALOR · R$" Style="{StaticResource Label}" TextAlignment="Right" />
                     </Grid>
                     <Border Height="1" Background="{DynamicResource Rule}" />
                 </StackPanel>
@@ -270,7 +272,8 @@
                 <Border DockPanel.Dock="Bottom" BorderBrush="{DynamicResource RuleStrong}" BorderThickness="0,1,0,0" Padding="0,14,0,22">
                     <DockPanel>
                         <TextBlock x:Name="TransactionsTotal" DockPanel.Dock="Right" Style="{StaticResource ValueMedium}" Margin="0,0,170,0" />
-                        <TextBlock x:Name="TransactionsCount" Style="{StaticResource LabelBright}" VerticalAlignment="Center" />
+                        <TextBlock x:Name="TransactionsCount" DockPanel.Dock="Left" Style="{StaticResource LabelBright}" VerticalAlignment="Center" />
+                        <TextBlock x:Name="PaymentTotals" Style="{StaticResource Label}" VerticalAlignment="Center" Margin="40,0,24,0" />
                     </DockPanel>
                 </Border>
 
@@ -282,10 +285,11 @@
                                     <Button x:Name="Row" Style="{StaticResource TableRow}" Click="Transaction_Click">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="90" />
+                                                <ColumnDefinition Width="70" />
                                                 <ColumnDefinition />
-                                                <ColumnDefinition Width="240" />
-                                                <ColumnDefinition Width="110" />
+                                                <ColumnDefinition Width="220" />
+                                                <ColumnDefinition Width="90" />
+                                                <ColumnDefinition Width="100" />
                                                 <ColumnDefinition Width="150" />
                                                 <ColumnDefinition Width="170" />
                                             </Grid.ColumnDefinitions>
@@ -295,9 +299,10 @@
                                                 <Rectangle Width="8" Height="8" Fill="{Binding Color}" VerticalAlignment="Center" Margin="0,1,10,0" SnapsToDevicePixels="True" />
                                                 <TextBlock Text="{Binding Category}" Foreground="{DynamicResource Ink2}" TextTrimming="CharacterEllipsis" />
                                             </DockPanel>
-                                            <TextBlock Grid.Column="3" Text="{Binding Repeats}" Style="{StaticResource Label}" VerticalAlignment="Center" />
-                                            <TextBlock Grid.Column="4" Text="{Binding Amount}" Style="{StaticResource Value}" VerticalAlignment="Center" />
-                                            <StackPanel x:Name="Actions" Grid.Column="5" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Opacity="0">
+                                            <TextBlock Grid.Column="3" Text="{Binding Payment}" Style="{StaticResource Label}" VerticalAlignment="Center" />
+                                            <TextBlock Grid.Column="4" Text="{Binding Repeats}" Style="{StaticResource Label}" VerticalAlignment="Center" />
+                                            <TextBlock Grid.Column="5" Text="{Binding Amount}" Style="{StaticResource Value}" VerticalAlignment="Center" />
+                                            <StackPanel x:Name="Actions" Grid.Column="6" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Opacity="0">
                                                 <Button Style="{StaticResource TextButton}" Content="EDITAR" Click="Transaction_Click" IsTabStop="False" />
                                                 <Button Style="{StaticResource TextButton}" Content="EXCLUIR" Margin="18,0,4,0" Click="Delete_Click" IsTabStop="False" />
                                             </StackPanel>
