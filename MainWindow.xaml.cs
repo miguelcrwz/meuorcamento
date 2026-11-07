@@ -260,6 +260,17 @@ public partial class MainWindow : Window
             : month.Transactions.Count == 0 ? "Nenhum lançamento neste mês ainda." : "Nada com esse filtro.";
     }
 
+    /// <summary>
+    /// With many transactions the scrollbar takes its width from the rows, and their columns move left;
+    /// the header and the footer give up the same width, so every column stays under its title.
+    /// </summary>
+    void TransactionScroll_ScrollChanged(object sender, ScrollChangedEventArgs e)
+    {
+        double bar = TransactionScroll.ActualWidth - TransactionScroll.ViewportWidth;
+        TransactionHeader.Margin = new Thickness(0, 22, bar, 10);
+        TransactionFooter.Margin = new Thickness(0, 0, bar, 0);
+    }
+
     /// <summary>"MENSAL", "3 DE 10" for an installment, or nothing.</summary>
     static string Repeats(Transaction t) =>
         t.Installment is { } plan ? $"{plan.Number} DE {plan.Count}" : t.Recurring ? "MENSAL" : "";

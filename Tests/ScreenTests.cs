@@ -181,6 +181,14 @@ static class ScreenTests
         Wait(250);
         Capture(window, "min-summary");
         window.Navigate(1); Wait(200); Capture(window, "min-transactions");
+        // 40 transactions: the scrollbar shows, and the titles and the total must still line up with the rows
+        var firstRow = (FrameworkElement)Field<ItemsControl>(window, "TransactionTable").ItemContainerGenerator.ContainerFromIndex(0);
+        double Right(FrameworkElement e) => e.TranslatePoint(new Point(e.ActualWidth, 0), window).X;
+        bool scrolling = Field<ScrollViewer>(window, "TransactionScroll").ComputedVerticalScrollBarVisibility == Visibility.Visible;
+        Check("with a scrollbar, the header and the footer line up with the rows",
+            scrolling && Math.Abs(Right(Field<Grid>(window, "TransactionHeader")) - Right(firstRow)) < 0.5
+                      && Math.Abs(Right(Field<DockPanel>(window, "TransactionFooter")) - Right(firstRow)) < 0.5,
+            $"scrollbar={scrolling} header {Right(Field<Grid>(window, "TransactionHeader")):0} footer {Right(Field<DockPanel>(window, "TransactionFooter")):0} rows {Right(firstRow):0}");
         window.Navigate(2); Wait(200); Capture(window, "min-history");
         window.Navigate(0);
         _ = window.OpenDrawer(new AllocationEditor(repo, month));

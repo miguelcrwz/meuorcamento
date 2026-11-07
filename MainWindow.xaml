@@ -249,7 +249,7 @@
                         </Grid>
                         <WrapPanel x:Name="Filters" />
                     </DockPanel>
-                    <Grid Margin="0,22,0,10">
+                    <Grid x:Name="TransactionHeader" Margin="0,22,0,10">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="70" />
                             <ColumnDefinition />
@@ -270,7 +270,7 @@
                 </StackPanel>
 
                 <Border DockPanel.Dock="Bottom" BorderBrush="{DynamicResource RuleStrong}" BorderThickness="0,1,0,0" Padding="0,14,0,22">
-                    <DockPanel>
+                    <DockPanel x:Name="TransactionFooter">
                         <TextBlock x:Name="TransactionsTotal" DockPanel.Dock="Right" Style="{StaticResource ValueMedium}" Margin="0,0,170,0" />
                         <TextBlock x:Name="TransactionsCount" DockPanel.Dock="Left" Style="{StaticResource LabelBright}" VerticalAlignment="Center" />
                         <TextBlock x:Name="PaymentTotals" Style="{StaticResource Label}" VerticalAlignment="Center" Margin="40,0,24,0" />
@@ -278,7 +278,7 @@
                 </Border>
 
                 <Grid>
-                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <ScrollViewer x:Name="TransactionScroll" VerticalScrollBarVisibility="Auto" ScrollChanged="TransactionScroll_ScrollChanged">
                         <ItemsControl x:Name="TransactionTable">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
